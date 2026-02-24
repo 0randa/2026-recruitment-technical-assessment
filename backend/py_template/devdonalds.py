@@ -43,8 +43,25 @@ def parse():
 # [TASK 1] ====================================================================
 # Takes in a recipeName and returns it in a form that 
 def parse_handwriting(recipeName: str) -> Union[str | None]:
-	# TODO: implement me
-	return recipeName
+	if not recipeName:
+		return None
+
+	replaced_hyphens = re.sub(r"[\-_]", " ", recipeName)
+
+	output = re.sub(r"[^A-Za-z ]", "", replaced_hyphens)
+
+	split_words = output.split(" ")
+
+	formated_words = []
+
+	for word in split_words:
+		if not word:
+			continue
+		formated_words.append(word[0].upper() + word[1:].lower())
+
+
+	fixed_recipe = " ".join(formated_words)
+	return fixed_recipe
 
 
 # [TASK 2] ====================================================================
