@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Dict, Union
+from collections import defaultdict
 from flask import Flask, request, jsonify
 import re
 
@@ -103,8 +104,42 @@ def create_entry():
 # Endpoint that returns a summary of a recipe that corresponds to a query name
 @app.route('/summary', methods=['GET'])
 def summary():
-	# TODO: implement me
-	return 'not implemented', 500
+	name = request.args.get("name", "")
+
+	totals = defaultdict(int)
+	missing = set()
+
+	def add_ingredients(name, mult=1):
+		found = False
+
+		for e in cookbook:
+			if e.get("name") == name:
+				found = True
+
+				if e.get("type") == "ingredient":
+					totals[name] += mult
+				else:
+					for item in e.get("requiredItems"):
+						child_name = item.get("name")
+						qty = item.get("quanity", 0)
+						add_ingredients(child_name, mult * qty)
+					break
+			
+			if not found:
+				missing.add(name)
+
+	matches = [e for e in cookbook if e.get("name") == name]
+	recipe_entry = matches[0] if matches else None
+
+	if recipe_entry is None or recipe_entry.get("type") != "recipe":
+		return "Bad request", 400
+	
+	add_ingredients(name, 1)
+
+	if missing:
+		return "Bad request", 400
+
+	return 'yay', 200
 
 
 # =============================================================================
