@@ -123,10 +123,10 @@ def summary():
 						child_name = item.get("name")
 						qty = item.get("quanity", 0)
 						add_ingredients(child_name, mult * qty)
-					break
+				break
 			
-			if not found:
-				missing.add(name)
+		if not found:
+			missing.add(name)
 
 	matches = [e for e in cookbook if e.get("name") == name]
 	recipe_entry = matches[0] if matches else None
